@@ -16,6 +16,8 @@
     <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('/assets/media/favicons/favicon-192x192.png') }}">
     <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('/assets/media/favicons/apple-touch-icon-180x180.png') }}">
 
+    <meta name="csrf-token" content="{{csrf_token()}}" />
+
     @vite('resources/js/main.js')
 </head>
 

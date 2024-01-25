@@ -1,14 +1,14 @@
 <script setup>
 import { reactive, computed } from "vue";
 import { useRouter } from "vue-router";
-import { useTemplateStore } from "@/stores/template";
+import { useUsers } from "@/stores/user";
 
 // Vuelidate, for more info and examples you can check out https://github.com/vuelidate/vuelidate
 import useVuelidate from "@vuelidate/core";
-import { required, minLength } from "@vuelidate/validators";
+import { required, email, minLength } from "@vuelidate/validators";
 
 // Main store and Router
-const store = useTemplateStore();
+const store = useUsers();
 const router = useRouter();
 
 // Input state variables
@@ -22,6 +22,7 @@ const rules = computed(() => {
   return {
     username: {
       required,
+      email,
       minLength: minLength(3),
     },
     password: {
@@ -43,8 +44,10 @@ async function onSubmit() {
     return;
   }
 
+  await store.login();
+
   // Go to dashboard
-  router.push({ name: "backend-pages-auth" });
+  router.push({ name: "backend-dashboard" });
 }
 </script>
 
@@ -55,55 +58,46 @@ async function onSubmit() {
       <div class="row justify-content-center push">
         <div class="col-md-8 col-lg-6 col-xl-4">
           <!-- Sign In Block -->
-          <BaseBlock title="Sign In" class="mb-0">
-            <template #options>
-              <RouterLink
-                :to="{ name: 'auth-reminder' }"
-                class="btn-block-option fs-sm"
-                >Forgot Password?</RouterLink
-              >
-              <RouterLink
-                :to="{ name: 'auth-signup' }"
-                class="btn-block-option"
-              >
-                <i class="fa fa-user-plus"></i>
-              </RouterLink>
-            </template>
-
+          <BaseBlock class="mb-0">
             <div class="p-sm-3 px-lg-4 px-xxl-5 py-lg-5">
-              <h1 class="h2 mb-1">OneUI</h1>
-              <p class="fw-medium text-muted">Welcome, please login.</p>
+              <h1 class="h2 mb-1 text-center">Login</h1>
 
               <!-- Sign In Form -->
               <form @submit.prevent="onSubmit">
                 <div class="py-3">
                   <div class="mb-4">
+                    <label for="login-username" class="form-label">
+                      Correo electrónico
+                    </label>
                     <input
+                      id="login-username"
                       type="text"
                       class="form-control form-control-alt form-control-lg"
-                      id="login-username"
                       name="login-username"
-                      placeholder="Username"
                       :class="{
                         'is-invalid': v$.username.$errors.length,
                       }"
                       v-model="state.username"
                       @blur="v$.username.$touch"
                     />
+
                     <div
-                      v-if="v$.username.$errors.length"
+                      v-for="error of v$.username.$errors"
+                      :key="error.$uid"
                       class="invalid-feedback animated fadeIn"
                     >
-                      Please enter your username
+                      {{ error.$message }}
                     </div>
                   </div>
                   <div class="mb-4">
+                    <label for="login-password" class="form-label">
+                      Contraseña
+                    </label>
                     <input
+                      id="login-password"
                       type="password"
                       class="form-control form-control-alt form-control-lg"
-                      id="login-password"
                       name="login-password"
-                      placeholder="Password"
                       :class="{
                         'is-invalid': v$.password.$errors.length,
                       }"
@@ -111,34 +105,25 @@ async function onSubmit() {
                       @blur="v$.password.$touch"
                     />
                     <div
-                      v-if="v$.password.$errors.length"
+                      v-for="error of v$.password.$errors"
+                      :key="error.$uid"
                       class="invalid-feedback animated fadeIn"
                     >
-                      Please enter your password
+                      {{ error.$message }}
                     </div>
                   </div>
                   <div class="mb-4">
                     <div class="form-check">
-                      <input
-                        class="form-check-input"
-                        type="checkbox"
-                        value=""
-                        id="login-remember"
-                        name="login-remember"
-                      />
-                      <label class="form-check-label" for="login-remember"
-                        >Remember Me</label
-                      >
+                      <input class="form-check-input" type="checkbox" value="" id="login-remember"
+                        name="login-remember" />
+                      <label class="form-check-label" for="login-remember">Recordarme</label>
                     </div>
                   </div>
                 </div>
-                <div class="row mb-4">
-                  <div class="col-md-6 col-xl-5">
-                    <button type="submit" class="btn w-100 btn-alt-primary">
-                      <i class="fa fa-fw fa-sign-in-alt me-1 opacity-50"></i>
-                      Sign In
-                    </button>
-                  </div>
+                <div class="d-grid gap-2 mb-4">
+                  <button type="submit" class="btn w-full btn-alt-primary">
+                    Ingresar
+                  </button>
                 </div>
               </form>
               <!-- END Sign In Form -->
@@ -146,10 +131,6 @@ async function onSubmit() {
           </BaseBlock>
           <!-- END Sign In Block -->
         </div>
-      </div>
-      <div class="fs-sm text-muted text-center">
-        <strong>{{ store.app.name + " " + store.app.version }}</strong> &copy;
-        {{ store.app.copyright }}
       </div>
     </div>
   </div>

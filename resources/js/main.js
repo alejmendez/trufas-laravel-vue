@@ -1,10 +1,10 @@
-import { createApp } from "vue";
+import { createApp, markRaw } from "vue";
 import { createPinia } from "pinia";
 import App from "./App.vue";
 
 // You can use the following starter router instead of the default one as a clean starting point
 // import router from "./router/starter";
-import router from "./router";
+import router from "./router/starter";
 
 // Template components
 import BaseBlock from "@/components/BaseBlock.vue";
@@ -30,7 +30,12 @@ app.component("BasePageHeading", BasePageHeading);
 app.directive("click-ripple", clickRipple);
 
 // Use Pinia and Vue Router
-app.use(createPinia());
+const pinia = createPinia()
+app.use(
+  pinia.use(({ store }) => {
+      store.router = markRaw(router)
+  }),
+)
 app.use(router);
 
 // ..and finally mount it!
